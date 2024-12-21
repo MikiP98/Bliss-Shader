@@ -1,6 +1,5 @@
-layout (local_size_x = 8, local_size_y = 8, local_size_z = 1) in;
-
-const ivec3 workGroups = ivec3(6, 6, 1);
+layout (local_size_x = 10, local_size_y = 10, local_size_z = 1) in;
+const ivec3 workGroups = ivec3(10, 10, 1);
 
 #ifdef IS_LPV_ENABLED
     #include "/lib/items.glsl"
@@ -53,8 +52,16 @@ const ivec3 workGroups = ivec3(6, 6, 1);
 
 void main() {
     #ifdef IS_LPV_ENABLED
-        int blockId = int(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * 48);
-        if (blockId >= 2048) return;
+		const float wrap = gl_NumWorkGroups.x * gl_WorkGroupSize.x;
+        int blockId = int(gl_GlobalInvocationID.x + gl_GlobalInvocationID.y * wrap);
+		
+		#if AUTO_GENERATED_FLOODFILL_QUALITY == 3
+		if (blockId >= 8192) return;
+		#elif AUTO_GENERATED_FLOODFILL_QUALITY == 2
+		if (blockId >= 4096) return;
+		#else
+		if (blockId >= 2048) return;
+		#endif
 
         vec3 lightColor = vec3(0.0);
         float lightRange = 0.0;
@@ -451,12 +458,7 @@ void main() {
             mixWeight = 1.0;
         }
 
-        #ifdef LPV_REDSTONE_LIGHTS
-            if (blockId == BLOCK_COMPARATOR_LIT) {
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 4.0;
-            }
-        #endif
+        
 
         switch (blockId) {
             case BLOCK_COPPER_BULB_LIT:
@@ -645,76 +647,67 @@ void main() {
             lightRange = 7.0;
             mixWeight = 0.9;
         }
-
-        switch (blockId) {
+		
         #ifdef LPV_REDSTONE_LIGHTS
+		switch (blockId) {
             case BLOCK_REDSTONE_WIRE_1:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 0.5;
+                lightRange = 1.4;
                 break;
             case BLOCK_REDSTONE_WIRE_2:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 1.0;
+                lightRange = 1.8;
                 break;
             case BLOCK_REDSTONE_WIRE_3:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 1.5;
+                lightRange = 2.2;
                 break;
             case BLOCK_REDSTONE_WIRE_4:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 2.0;
+                lightRange = 2.6;
                 break;
             case BLOCK_REDSTONE_WIRE_5:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 2.5;
-                break;
-            case BLOCK_REDSTONE_WIRE_6:
-                lightColor = LightColor_RedstoneTorch;
                 lightRange = 3.0;
                 break;
+            case BLOCK_REDSTONE_WIRE_6:
+                lightRange = 3.4;
+                break;
             case BLOCK_REDSTONE_WIRE_7:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 3.5;
+                lightRange = 3.8;
                 break;
             case BLOCK_REDSTONE_WIRE_8:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 4.0;
+                lightRange = 4.2;
                 break;
             case BLOCK_REDSTONE_WIRE_9:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 4.5;
+                lightRange = 4.6;
                 break;
             case BLOCK_REDSTONE_WIRE_10:
-                lightColor = LightColor_RedstoneTorch;
                 lightRange = 5.0;
                 break;
             case BLOCK_REDSTONE_WIRE_11:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 5.5;
+                lightRange = 5.4;
                 break;
             case BLOCK_REDSTONE_WIRE_12:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 6.0;
+                lightRange = 5.8;
                 break;
             case BLOCK_REDSTONE_WIRE_13:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 6.5;
+                lightRange = 6.2;
                 break;
             case BLOCK_REDSTONE_WIRE_14:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 7.0;
+                lightRange = 6.6;
                 break;
             case BLOCK_REDSTONE_WIRE_15:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 7.5;
+                lightRange = 7.0;
                 break;
 
+			case BLOCK_COMPARATOR_LIT:
             case BLOCK_REPEATER_LIT:
-                lightColor = LightColor_RedstoneTorch;
-                lightRange = 4.0;
+                lightRange = 6.0;
                 break;
+		}
+		if ((blockId >= BLOCK_REDSTONE_WIRE_1 && blockId <= BLOCK_REPEATER_LIT) || blockId == BLOCK_COMPARATOR_LIT) {
+			lightColor = vec3(1.0, LightColor_RedstoneTorch.yz);
+			mixWeight = 0.9 - lightRange / 8;
+		}
         #endif
-
+		
+		switch (blockId) {
             case BLOCK_RESPAWN_ANCHOR_4:
                 lightColor = vec3(1.0, 0.2, 1.0);
                 lightRange = 15.0;
@@ -1131,6 +1124,112 @@ void main() {
             lightRange = 8.0;
             mixWeight = 1.0;
         }
+
+
+		// 3 formats:
+		//
+		// 1) 0MMR RRGG GBBB	for x2048
+		//	  MODE:
+		//	  	- 0 -> off
+		//	  	- 1 -> light_range = max(R, G, B)
+		//	  	- 2 -> light_range = luminosity.of(R, G, B)
+		//	  	- 3 -> tinting mode (glass)
+		//
+		// 2) MMMR RRGG GBBB	for x4096
+		//	  MODE:
+		//	  	- 0 -> off
+		//	  	- 1 -> light_range = max(R, G, B)
+		//	  	- 2 -> light_range = luminosity.of(R, G, B)
+		//	  	- 3 -> tinting mode (glass)
+		//		- 4 -> *Reserved for future use*
+		//
+		// 3) 1 RRRR GGGG BBBB	for x8192
+		//
+		// M -> MODE
+		// R -> RED
+		// G -> GREEN
+		// B -> BLUE
+		// 1 -> required bit 1 (switch)
+		// 0 -> required bit 0
+		
+		#if AUTO_GENERATED_FLOODFILL_QUALITY == 2
+		int state = ((blockId >> 9) & 0x7);
+		#else
+		int state = ((blockId >> 9) & 0x3);
+		#endif
+		
+		float R = 0.0;
+		float G = 0.0;
+		float B = 0.0;
+		float L = 0.0;
+		
+		if (state > 0) {
+			// Extract RGB components and normalize to 0-1
+			R = float((blockId >> 6) & 0x07) / 7.0; // Extract bits 7-9
+			G = float((blockId >> 3) & 0x07) / 7.0; // Extract bits 4-6
+			B = float((blockId >> 0) & 0x07) / 7.0; // Extract bits 1-3
+
+			// Extract L components and calculate light range (1-16)
+			// uint L_bits = (blockId >> 12) & 0x07; // Extract bits 28-30
+			
+			if (state == 3) {
+				// tintlight
+				tintColor = vec3(R, G, B);
+				mixWeight = 1.0;
+			} else {
+				// blocklight
+				switch (state) {
+					case 1:
+						// max
+						L = 15 * max(R, max(G, B));
+						break;
+					case 2:
+						// luminosity
+						L = 15 * sqrt(0.2126 * R + 0.7152 * G + 0.0722 * B);
+						break;
+					case 4:
+					case 5:
+					case 6:
+					case 7:
+						break;
+				}
+				
+				lightColor = vec3(R, G, B);
+				tintColor = vec3(R, G, B);
+				lightRange = L;
+				mixWeight = 1.0 - L / 15.0;
+			}
+		}
+		
+		//if (((blockId >> 12) & 0x1) == 1) {
+		//	// Extract RGB components and normalize to 0-1
+		//	R = float((blockId >> 8) & 0x0F) / 15.0; // Extract bits 9-12
+		//	G = float((blockId >> 4) & 0x0F) / 15.0; // Extract bits 5-8
+		//	B = float((blockId >> 0) & 0x0F) / 15.0; // Extract bits 1-4
+		//	
+		//	L = 7.5 * (sqrt(0.2126 * R + 0.7152 * G + 0.0722 * B) + max(R , max(G, B)));
+		//	
+		//	lightColor = vec3(R, G, B);
+		//	tintColor = vec3(R, G, B);
+		//	lightRange = L;
+		//	mixWeight = 1.0 - L / 15.0;
+		//}
+		
+		if (((blockId >> 12) & 0x1) == 1) {
+			// Extract RGB and L components and normalize to 0-1
+			L = float(((blockId >> 9) & 0x07) + 1) / 8.0; // Extract bits 10-12
+			R = float((blockId >> 6) & 0x07) / 7.0; // Extract bits 7-9
+			G = float((blockId >> 3) & 0x07) / 7.0; // Extract bits 4-6
+			B = float((blockId >> 0) & 0x07) / 7.0; // Extract bits 1-3
+			
+			L = L * 7.5 * (sqrt(0.2126 * R + 0.7152 * G + 0.0722 * B) + max(R , max(G, B)));
+			
+			lightColor = vec3(R, G, B);
+			tintColor = vec3(R, G, B);
+			lightRange = L;
+			mixWeight = 1.0 - L / 15.0;
+		}
+
 
 
         // hack to increase light (if set)
