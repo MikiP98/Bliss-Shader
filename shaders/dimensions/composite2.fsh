@@ -501,11 +501,13 @@ void main() {
 	vec2 BN = fract(r2_sequence + bnoise);
 
 	// vec2 tc = floor(gl_FragCoord.xy)/VL_RENDER_RESOLUTION*texelSize + texelSize*0.5;
-	vec2 tc = (gl_FragCoord.xy)/VL_RENDER_RESOLUTION*texelSize;
+	vec2 tc = gl_FragCoord.xy/VL_RENDER_RESOLUTION*texelSize;// + texelSize*0.5;
 
 	bool iswater = texture2D(colortex7,tc).a > 0.99;
 
-	float depth = texelFetch2D(depthtex0, ivec2(tc/texelSize),0).x;
+	vec2 jitter = TAA_Offset/VL_RENDER_RESOLUTION*texelSize*0.5;
+
+	float depth = texture2D(depthtex0, tc + jitter).x;
 	
 	float z0 = depth < 0.56 ? convertHandDepth(depth) : depth;
 
@@ -571,7 +573,6 @@ void main() {
 	}
 
 
-	// VolumetricFog = raymarchTest2(viewPos0, BN.x);
 	// VolumetricFog = raymarchTest(viewPos0, BN);
 
 
