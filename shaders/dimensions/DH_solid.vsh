@@ -14,13 +14,12 @@ uniform float nightVision;
 uniform vec2 texelSize;
 uniform int framemod8;
 
-uniform float far;
-
 #if DOF_QUALITY == 5
 uniform int hideGUI;
 uniform int frameCounter;
 uniform float aspectRatio;
 uniform float screenBrightness;
+uniform float far;
 #include "/lib/bokeh.glsl"
 #endif
 
@@ -33,6 +32,7 @@ uniform int framemod4_DH;
 uniform mat4 gbufferModelViewInverse;
 uniform mat4 gbufferModelView;
 
+uniform float far;
 uniform mat4 dhProjection;
 uniform vec3 cameraPosition;
 
