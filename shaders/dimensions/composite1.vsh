@@ -5,7 +5,11 @@
 	flat varying float Flashing;
 #endif
 
-#include "/lib/scene_controller.glsl"
+	#ifdef Daily_Weather
+		flat varying vec4 dailyWeatherParams0;
+		flat varying vec4 dailyWeatherParams1;
+	#endif
+
 
 flat varying vec3 WsunVec;
 flat varying vec3 WmoonVec;
@@ -73,8 +77,11 @@ void main() {
 	
 
 	exposure = texelFetch2D(colortex4,ivec2(10,37),0).r;
-
-	readSceneControllerParameters(colortex4, parameters.smallCumulus, parameters.largeCumulus, parameters.altostratus, parameters.fog);
+	
+	#if defined Daily_Weather
+			dailyWeatherParams0 = vec4(texelFetch2D(colortex4,ivec2(1,1),0).rgb / 1500.0, 0.0);
+			dailyWeatherParams1 = vec4(texelFetch2D(colortex4,ivec2(2,1),0).rgb / 1500.0, 0.0);
+	#endif
 	
 	#ifdef TAA
 		TAA_Offset = offsets[framemod8];

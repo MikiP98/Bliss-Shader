@@ -11,7 +11,6 @@
 #endif
 
 uniform float exitWater;
-uniform float enterWater;
 // uniform float exitPowderSnow;
 uniform int isEyeInWater;
 
@@ -32,6 +31,7 @@ uniform int isEyeInWater;
 
 // uniform bool is_on_ground;
 // uniform bool isSpectator;
+
 
 void applyGameplayEffects(inout vec3 color, in vec2 texcoord, float noise){
    
@@ -74,12 +74,6 @@ void applyGameplayEffects(inout vec3 color, in vec2 texcoord, float noise){
             // apply distortion effects for exiting water and under water
             distortmask = max(distortmask, waterDrops);
         }
-        if(enterWater > 0.0){
-            vec2 zoomTC = 0.5 + (texcoord - 0.5) * (1.0 - (1.0-sqrt(1.0-enterWater)));
-            float waterSplash = texture2D(noisetex, zoomTC * vec2(aspectRatio,1.0)).r * (1.0-enterWater);
-
-            distortmask = max(distortmask, waterSplash);
-        }
     #endif
 
     //////////////////////// APPLY DISTORTION /////////////////////
@@ -91,7 +85,6 @@ void applyGameplayEffects(inout vec3 color, in vec2 texcoord, float noise){
         // apply the distorted water color to the scene, but revert back to before when it ends
         if(exitWater > 0.01) color = distortedColor;
     #endif
-
 
     //////////////////////// APPLY COLOR EFFECTS /////////////////////
     #if defined LOW_HEALTH_EFFECT || defined DAMAGE_TAKEN_EFFECT   
