@@ -343,11 +343,10 @@ if (gl_FragCoord.x > 18.+257. && gl_FragCoord.y > 1. && gl_FragCoord.x < 18+257+
 		suncol = vec3(0.0);
 	#endif
 	float rejection = 1.0;
-	float cloudPlaneDistance = 0.0;
-	vec4 volumetricClouds = GetVolumetricClouds(viewPos, vec2(noise, 1.0-noise), WsunVec, suncol*2.5, skyGroundCol/30.0, cloudPlaneDistance);
+	vec4 volumetricClouds = GetVolumetricClouds(viewPos, vec2(noise, 1.0-noise), WsunVec, suncol*2.5, skyGroundCol/30.0);
 
 	float atmosphereAlpha = 1.0;
-	vec4 volumetricFog = GetVolumetricFog(viewPos, WsunVec,   vec2(noise, 1.0-noise), suncol*2.5, skyGroundCol/30.0, averageSkyCol_Clouds*5.0, atmosphereAlpha, volumetricClouds.rgb, cloudPlaneDistance);
+	vec4 volumetricFog = GetVolumetricFog(viewPos, WsunVec,   vec2(noise, 1.0-noise), suncol*2.5, skyGroundCol/30.0, averageSkyCol_Clouds*5.0, atmosphereAlpha, volumetricClouds.rgb);
 
 	sky = sky * volumetricClouds.a + volumetricClouds.rgb / 5.0;
 	sky = sky * volumetricFog.a + volumetricFog.rgb / 5.0;
