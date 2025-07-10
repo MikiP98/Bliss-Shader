@@ -30,32 +30,24 @@ void main() {
 	#if RESOURCEPACK_SKY != 0
 		/* RENDERTARGETS:2 */
 
-		vec4 COLOR = texture2D(texture, texcoord.xy) * color;
-
-		bool isSun = renderStage == MC_RENDER_STAGE_SUN || renderStage == 4;
-		bool isMoon = renderStage == MC_RENDER_STAGE_MOON || renderStage == 5;
-		bool isSkyBox = (renderStage == MC_RENDER_STAGE_SKY || renderStage == MC_RENDER_STAGE_CUSTOM_SKY) || (renderStage == 1 || renderStage == 3);
-
-		#if RESOURCEPACK_SKY == 1
-			if(isMoon || isSun) { discard; return; }
-		#endif
+		gl_FragData[0] = vec4(0.0,0.0,0.0,1.0);
+		vec4 COLOR = texture2D(texture, texcoord.xy);
+		COLOR.rgb = toLinear(COLOR.rgb);
+		COLOR *= color;
 
 		#if RESOURCEPACK_SKY == 3
-			if(isSkyBox) { discard; return; }
+			if(renderStage == 1 || renderStage == 3) { discard; return; }
 		#endif
 
+		#if RESOURCEPACK_SKY == 1
+			if(renderStage == 4 || renderStage == 5) { discard; return; }
+		#else
+			if(renderStage == 4 || renderStage == MC_RENDER_STAGE_SUN) COLOR.rgb *= 5.0;
+		#endif
 
-		vec3 NEWCOLOR = COLOR.rgb;
-
-		if(isSun) NEWCOLOR.rgb = COLOR.rgb * 10.0;
-		if(isMoon) NEWCOLOR.rgb = COLOR.rgb * 10.0;
-		if(isSkyBox) NEWCOLOR.rgb = COLOR.rgb * 2.0;
-
-		NEWCOLOR.rgb = toLinear(NEWCOLOR.rgb);
-
-		NEWCOLOR.rgb = max(NEWCOLOR.rgb - NEWCOLOR.rgb * interleaved_gradientNoise()*0.05, 0.0);
+		COLOR.rgb = max(COLOR.rgb - COLOR.rgb * interleaved_gradientNoise()*0.05, 0.0);
 		
-		gl_FragData[0] = vec4(NEWCOLOR.rgb*0.1, COLOR.a);
+		gl_FragData[0] = vec4(COLOR.rgb*0.1, COLOR.a);
 	#else
 		discard;
 	#endif
