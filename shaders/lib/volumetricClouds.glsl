@@ -227,7 +227,7 @@ uniform sampler2D colortex4;
 
 vec4 raymarchCloud(
 	int LayerIndex,
-	int samples,
+	float samples,
 	vec3 rayPosition,
 	vec3 rayDirection,
 	float dither,
@@ -327,7 +327,7 @@ vec4 raymarchCloud(
 		#endif
 
 		
-		for(int i = 0; i < samples; i++) {
+		for(int i = 0; i < int(samples); i++) {
 
 
 			// check if the ray staring position is going farther than the reference distance, if yes, dont begin marching. this is to check for intersections with the world.
@@ -459,8 +459,8 @@ vec4 GetVolumetricClouds(
 		NormPlayerPos.y += 0.03 * heightRelativeToClouds;
 	#endif
 
-	float maxSamples = 15.0;
-	float minSamples = 10.0;
+	int maxSamples = 15;
+	int minSamples = 10;
 	int samples = int(clamp(maxSamples / sqrt(exp2(NormPlayerPos.y)),0.0, minSamples));
 	// int samples = 30;
    
