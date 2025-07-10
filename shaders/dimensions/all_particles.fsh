@@ -34,7 +34,6 @@ varying vec4 color;
 	flat varying vec4 lightCol;
 #endif
 
-uniform int renderStage;
 uniform int isEyeInWater;
 
 uniform sampler2D texture;
@@ -270,7 +269,7 @@ uniform vec3 eyePosition;
 #ifdef DAMAGE_BLOCK_EFFECT
 	/* RENDERTARGETS:11 */
 #else
-	/* RENDERTARGETS:2,9,11 */
+	/* DRAWBUFFERS:29 */
 #endif
 
 void main() {
@@ -341,9 +340,6 @@ void main() {
 #endif
 
 #if !defined DAMAGE_BLOCK_EFFECT
-	
-	gl_FragData[2] = vec4(0.0);
-	
 	#ifdef LINES
 		#ifndef SELECT_BOX
 			if(SELECTION_BOX > 0) discard;
@@ -467,14 +463,6 @@ void main() {
 			gl_FragData[0].rgb = (Indirect_lighting + Direct_lighting) * toLinear(color.rgb);
 
 			if(SELECTION_BOX > 0) gl_FragData[0].rgba = vec4(toLinear(vec3(SELECT_BOX_COL_R, SELECT_BOX_COL_G, SELECT_BOX_COL_B)), 1.0);
-			
-			float LITEMATICA_SCHEMATIC_THING_MASK = 0.0;
-			if (renderStage == MC_RENDER_STAGE_NONE){
-				LITEMATICA_SCHEMATIC_THING_MASK = 0.1;
-				gl_FragData[0] = vec4(toLinear(color.rgb), color.a);
-			}
-
-			gl_FragData[2] = vec4(encodeVec2(vec2(0.0)), encodeVec2(vec2(0.0)), encodeVec2(vec2(0.0)), encodeVec2(0.0, LITEMATICA_SCHEMATIC_THING_MASK));
 		#else
 			gl_FragData[0].rgb = (Indirect_lighting + Direct_lighting) * Albedo;
 		#endif
@@ -483,7 +471,7 @@ void main() {
 		if(TEXTURE.a < 0.7 && TEXTURE.a > 0.2) gl_FragData[0] *= clamp(1.0 - length(feetPlayerPos) / 100.0 ,0.0,1.0);
 
 		gl_FragData[0].rgb *= 0.1;
-		
+
 	#endif
 #endif
 }
