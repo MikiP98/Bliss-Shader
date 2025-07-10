@@ -145,21 +145,6 @@ uniform float waterEnteredAltitude;
 	#include "/lib/lpv_render.glsl"
 #endif
 
-#define FORWARD_SPECULAR
-#define FORWARD_ENVIORNMENT_REFLECTION
-#define FORWARD_BACKGROUND_REFLECTION
-#define FORWARD_ROUGH_REFLECTION
-
-#ifdef FORWARD_SPECULAR
-#endif
-#ifdef FORWARD_ENVIORNMENT_REFLECTION
-#endif
-#ifdef FORWARD_BACKGROUND_REFLECTION
-#endif
-#ifdef FORWARD_ROUGH_REFLECTION
-#endif
-
-#include "/lib/specular.glsl"
 #include "/lib/diffuse_lighting.glsl"
 
 float interleaved_gradientNoise_temporal(){
@@ -387,6 +372,21 @@ void Emission(
 
 uniform vec3 eyePosition;
 
+#define FORWARD_SPECULAR
+#define FORWARD_ENVIORNMENT_REFLECTION
+#define FORWARD_BACKGROUND_REFLECTION
+#define FORWARD_ROUGH_REFLECTION
+
+#ifdef FORWARD_SPECULAR
+#endif
+#ifdef FORWARD_ENVIORNMENT_REFLECTION
+#endif
+#ifdef FORWARD_BACKGROUND_REFLECTION
+#endif
+#ifdef FORWARD_ROUGH_REFLECTION
+#endif
+
+#include "/lib/specular.glsl"
 
 //////////////////////////////VOID MAIN//////////////////////////////
 //////////////////////////////VOID MAIN//////////////////////////////
