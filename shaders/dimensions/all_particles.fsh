@@ -419,7 +419,9 @@ void main() {
 
 			Shadows *= mix(LM_shadowMapFallback, 1.0, shadowMapFalloff2);
 
-			Shadows *= GetCloudShadow(feetPlayerPos+cameraPosition, WsunVec);
+			#ifdef CLOUDS_SHADOWS	
+				Shadows *= GetCloudShadow(feetPlayerPos+cameraPosition, WsunVec);
+			#endif
 
 			if(isEyeInWater == 1){
 	  			float distanceFromWaterSurface = max(-(feetPlayerPos.y + (cameraPosition.y - waterEnteredAltitude)),0.0) ;

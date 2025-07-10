@@ -328,8 +328,9 @@ vec4 waterVolumetrics(vec3 rayStart, vec3 rayEnd, float rayLength, vec2 dither, 
 				#endif
 			}
 
-			sh *= GetCloudShadow(progressW, WsunVec * lightCol.a);
-
+			#ifdef VL_CLOUDS_SHADOWS
+				sh *= GetCloudShadow(progressW, WsunVec * lightCol.a);
+			#endif
 		#endif
 
 

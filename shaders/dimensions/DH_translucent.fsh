@@ -368,8 +368,9 @@ if (gl_FragCoord.x * texelSize.x < 1.0  && gl_FragCoord.y * texelSize.y < 1.0 )	
     	    }
         #endif
 
-		Shadows *= GetCloudShadow(playerPos + cameraPosition, WsunVec);
-
+		#ifdef CLOUDS_SHADOWS
+			Shadows *= GetCloudShadow(playerPos + cameraPosition, WsunVec);
+		#endif
 
     	Direct_lighting = DirectLightColor * NdotL * Shadows;
 
