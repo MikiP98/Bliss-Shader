@@ -140,7 +140,7 @@ float encodeVec2(float x,float y){
 #ifdef OVERWORLD_SHADER
 float ComputeShadowMap(inout vec3 directLightColor, vec3 playerPos, float maxDistFade){
 
-	// if(maxDistFade <= 0.0) return 1.0;
+	if(maxDistFade <= 0.0) return 1.0;
 
 	// setup shadow projection
 	vec3 projectedShadowPosition = mat3(shadowModelView) * playerPos + shadowModelView[3].xyz;
@@ -191,8 +191,7 @@ float ComputeShadowMap(inout vec3 directLightColor, vec3 playerPos, float maxDis
 		directLightColor *= mix(vec3(1.0), translucentTint.rgb, maxDistFade);
 	#endif
 
-	return shadowmap;
-	// return mix(1.0, shadowmap, maxDistFade);
+	return mix(1.0, shadowmap, maxDistFade);
 }
 #endif
 
@@ -418,7 +417,7 @@ void main() {
 
 			Shadows = ComputeShadowMap(directLightColor, shadowPlayerPos, shadowMapFalloff);
 
-			Shadows *= mix(LM_shadowMapFallback, 1.0, shadowMapFalloff2);
+			Shadows = mix(LM_shadowMapFallback, Shadows, shadowMapFalloff2);
 
 			#ifdef CLOUDS_SHADOWS	
 				Shadows *= GetCloudShadow(feetPlayerPos+cameraPosition, WsunVec);
