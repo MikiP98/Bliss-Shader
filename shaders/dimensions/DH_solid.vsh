@@ -23,8 +23,6 @@ uniform float far;
 #include "/lib/bokeh.glsl"
 #endif
 
-uniform int framemod4_DH;
-#define DH_TAA_OVERRIDE
 #include "/lib/TAA_jitter.glsl"
 
 
@@ -87,8 +85,9 @@ void main() {
 	#ifdef TAA_UPSCALING
 		gl_Position.xy = gl_Position.xy * RENDER_SCALE + RENDER_SCALE * gl_Position.w - gl_Position.w;
 	#endif
-    #if defined TAA && defined DH_TAA_JITTER
-		gl_Position.xy += offsets[framemod4_DH] * gl_Position.w*texelSize;
+	
+    #ifdef TAA
+		gl_Position.xy += offsets[framemod8] * gl_Position.w*texelSize;
 	#endif
 	
 	lightmapCoords = (gl_TextureMatrix[1] * gl_MultiTexCoord1).xy;
