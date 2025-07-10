@@ -324,6 +324,7 @@ vec3 specularReflections(
 		vec3 reflectedVector_L = reflect(playerPos, normal);
 	#endif
 
+
 	float shlickFresnel = shlickFresnelRoughness(dot(-normalize(viewDir), vec3(0.0,0.0,1.0)), roughness);
 
 	#if defined FORWARD_SPECULAR && defined SNELLS_WINDOW
